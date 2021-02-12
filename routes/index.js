@@ -6,7 +6,6 @@ var uid2 = require('uid2');
 var userModel = require('../models/users');
 const { token } = require('morgan');
 
-
 router.post('/sign-up', async function(req,res,next){
   var error = []
   var result = false
@@ -15,7 +14,7 @@ router.post('/sign-up', async function(req,res,next){
 
   const hash = bcrypt.hashSync(req.body.passwordFromFront, cost);
 
-
+  var test = test
   const data = await userModel.findOne({
     email: req.body.emailFromFront
   })
