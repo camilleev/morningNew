@@ -3,12 +3,14 @@ import {Link} from 'react-router-dom'
 import './App.css';
 import { List, Avatar} from 'antd';
 import Nav from './Nav'
+import {connect} from 'react-redux'
+import token from './reducers/token';
 
-function ScreenSource() {
+function ScreenSource(props) {
 
   const [sourceList, setSourceList] = useState([])
   const [country, setCountry] = useState('fr')
-  const [langage, setLangage] = useState('fr')
+  const [selectedLang, setSelectedLang] = useState(props.selectedLang)
 
   const data = [
     {
@@ -27,22 +29,43 @@ function ScreenSource() {
 
   useEffect(() => {
     const APIResultsLoading = async() => {
-      const data = await fetch(`https://newsapi.org/v2/sources?language=${langage}&country=${country}&apiKey=b32c8b844d1243b1a7998d8228910f50`)
+      console.log(props.token)
+      var langue = "fr"
+      var country = "fr"
+      if(selectedLang == 'en'){
+        var langue = "en"
+        var country = "us"
+      }
+      props.changeLang(selectedLang)
+      const data = await fetch(`https://newsapi.org/v2/sources?language=${langue}&country=${country}&apiKey=b32c8b844d1243b1a7998d8228910f50`)
       const body = await data.json()
       setSourceList(body.sources)
     }
 
     APIResultsLoading()
-  }, [country, langage])
+  }, [selectedLang])
+
+  var changeLangage = async (country, langage) => {
+    setCountry(country)
+    setSelectedLang(langage)
+
+    const response = await fetch('/change-langage', {
+      method: 'POST',
+      headers: {'Content-Type':'application/x-www-form-urlencoded'},
+      body: `country=${country}&langage=${langage}&token=${props.token}`
+    })
+  }
 
   return (
     <div>
         <Nav/>
        
        <div className="Banner">
-        <img src="/images/france.svg" style={{height: "40px", margin: "5px"}} onClick={() => {setCountry('fr'); setLangage('fr')}}></img>
-         <img src="/images/united-kingdom.svg" style={{height: "40px", margin: "5px"}} onClick={() => {setCountry('gb'); setLangage('en')}}></img>
+        <img src="/images/france.svg" style={{height: "40px", margin: "5px"}} onClick={() => {changeLangage("fr", "fr")}}></img>
+        <img src="/images/united-kingdom.svg" style={{height: "40px", margin: "5px"}} onClick={() => {changeLangage("us", "en")}}></img>
        </div>
+
+       {props.token}
 
        <div className="HomeThemes">
           
@@ -67,4 +90,21 @@ function ScreenSource() {
   );
 }
 
-export default ScreenSource;
+// export default ScreenSource;
+
+function mapStateToProps(state){
+  return {selectedLang: state.selectedLang, token: state.token}
+}
+
+function mapDispatchToProps(dispatch){
+  return {
+    changeLang: function(selectedLang){
+      dispatch({type: 'changeLang', selectedLang: selectedLang})
+    }
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ScreenSource)
