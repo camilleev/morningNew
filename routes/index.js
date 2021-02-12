@@ -4,6 +4,7 @@ var bcrypt = require('bcrypt');
 var uid2 = require('uid2');
 
 var userModel = require('../models/users');
+var wishListModel = require('../models/wishLists')
 const { token } = require('morgan');
 
 router.post('/sign-up', async function(req,res,next){
@@ -14,7 +15,6 @@ router.post('/sign-up', async function(req,res,next){
 
   const hash = bcrypt.hashSync(req.body.passwordFromFront, cost);
 
-  var test = test
   const data = await userModel.findOne({
     email: req.body.emailFromFront
   })
@@ -99,5 +99,27 @@ router.post('/sign-in', async function(req,res,next){
   }
   
 })
+
+//Enregistrement BB wishlist
+router.post('/wishlist', async function(req, res, next) {
+
+  var newArticle = new userModel({
+    wishList: [{
+      title: req.body.title,
+      img: req.body.url,
+      content: req.body.desc,
+    }],
+    token: uid2(32)
+  })
+
+  var articleSave = await newArticle.save()
+ 
+  var result = false
+  if(articleSave){
+    result = true
+  }
+ console.log(articleSave);
+  res.json({result, articleSave})
+});
 
 module.exports = router;

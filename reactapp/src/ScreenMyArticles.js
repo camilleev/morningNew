@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import './App.css';
 import { Card, Icon, Modal} from 'antd';
 import Nav from './Nav'
@@ -12,14 +12,31 @@ function ScreenMyArticles(props) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
 
+  const [articlesWishList, setArticlesWishList] = useState([]);
 
+  useEffect(() => {
+    async function addWishlist() {
+        const whishlist = await fetch('/wishlist', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: `title=${articlesWishList}` 
+        });
 
-  var showModal = (title, content) => {
+        const jsonWishlist = await whishlist.json();
+          console.log(jsonWishlist)
+          
+          if(jsonWishlist.result == true){
+        setArticlesWishList(jsonWishlist.title)}
+  }
+      addWishlist()    
+}, [])
+ 
+
+  const showModal = (title, content) => {
     setVisible(true)
     setTitle(title)
     setContent(content)
-
-  }
+  };
 
   var handleOk = e => {
     console.log(e)
@@ -89,13 +106,6 @@ function ScreenMyArticles(props) {
                 </div>
 
               ))}
-
-
-
-       
-
-                
-
              </div>
       
  

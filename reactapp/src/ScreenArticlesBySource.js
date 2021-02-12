@@ -14,14 +14,16 @@ function ScreenArticlesBySource(props) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
 
+  const [articlesWishList, setArticlesWishList] = useState([]);
+
+
   useEffect(() => {
     const findArticles = async() => {
       const data = await fetch(`https://newsapi.org/v2/top-headlines?sources=${props.match.params.id}&apiKey=b32c8b844d1243b1a7998d8228910f50`)
       const body = await data.json()
-      console.log(body)
+      console.log(body.articles)
       setArticleList(body.articles) 
     }
-
     findArticles()    
   },[])
 
@@ -40,6 +42,23 @@ function ScreenArticlesBySource(props) {
   var handleCancel = e => {
     console.log(e)
     setVisible(false)
+  }
+
+  var handleWishList = e => {
+    async function addWishlist() {
+    const whishlist = await fetch('/wishlist', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: `title=${articlesWishList}` 
+    });
+    const jsonWishlist = await whishlist.json();
+    console.log(jsonWishlist)
+    
+    if(jsonWishlist.result == true){
+    setArticlesWishList(jsonWishlist.title)}
+    }
+
+      props.addToWishList()
   }
 
   return (
@@ -91,11 +110,6 @@ function ScreenArticlesBySource(props) {
               </div>
 
               ))}
-              
-
-
-            
-
            </div> 
 
          
@@ -114,7 +128,11 @@ function mapDispatchToProps(dispatch){
   }
 }
 
+function mapStateToProps(state) {
+  return { saveWishList: state.wishList }
+ }
+
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(ScreenArticlesBySource)
