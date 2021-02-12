@@ -7,6 +7,8 @@ import Nav from './Nav'
 function ScreenSource() {
 
   const [sourceList, setSourceList] = useState([])
+  const [country, setCountry] = useState('fr')
+  const [langage, setLangage] = useState('fr')
 
   const data = [
     {
@@ -25,19 +27,22 @@ function ScreenSource() {
 
   useEffect(() => {
     const APIResultsLoading = async() => {
-      const data = await fetch('https://newsapi.org/v2/sources?language=fr&country=fr&apiKey=9de50ca6295d47e0855b01f48e9731fd')
+      const data = await fetch(`https://newsapi.org/v2/sources?language=${langage}&country=${country}&apiKey=b32c8b844d1243b1a7998d8228910f50`)
       const body = await data.json()
       setSourceList(body.sources)
     }
 
     APIResultsLoading()
-  }, [])
+  }, [country, langage])
 
   return (
     <div>
         <Nav/>
        
-       <div className="Banner"/>
+       <div className="Banner">
+        <img src="/images/france.svg" style={{height: "40px", margin: "5px"}} onClick={() => {setCountry('fr'); setLangage('fr')}}></img>
+         <img src="/images/united-kingdom.svg" style={{height: "40px", margin: "5px"}} onClick={() => {setCountry('gb'); setLangage('en')}}></img>
+       </div>
 
        <div className="HomeThemes">
           

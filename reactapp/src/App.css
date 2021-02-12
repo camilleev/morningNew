@@ -54,6 +54,9 @@ h4 {
   background-repeat: no-repeat;
   background-size: cover;
   opacity: 0.8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .Card{

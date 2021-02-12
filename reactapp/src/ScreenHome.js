@@ -2,8 +2,11 @@ import React, {useState} from 'react';
 import './App.css';
 import {Input,Button} from 'antd';
 import {Link, Redirect} from 'react-router-dom'
+import { PromiseProvider } from 'mongoose';
+import {connect} from 'react-redux'
 
-function ScreenHome() {
+
+function ScreenHome(props) {
 
   const [signUpUsername, setSignUpUsername] = useState('')
   const [signUpEmail, setSignUpEmail] = useState('')
@@ -28,10 +31,13 @@ function ScreenHome() {
     const body = await data.json()
 
     if(body.result == true){
+      props.addToken(body.token)
       setUserExists(true)
     } else {
       setErrorsSignup(body.error)
     }
+
+
   }
 
   var handleSubmitSignin = async () => {
@@ -45,6 +51,7 @@ function ScreenHome() {
     const body = await data.json()
 
     if(body.result == true){
+      props.addToken(body.token)
       setUserExists(true)
     }  else {
       setErrorsSignin(body.error)
@@ -66,8 +73,8 @@ function ScreenHome() {
   
 
   return (
+    
     <div className="Login-page" >
-
           {/* SIGN-IN */}
 
           <div className="Sign">
@@ -102,4 +109,16 @@ function ScreenHome() {
   );
 }
 
-export default ScreenHome;
+// export default ScreenHome;
+function mapDispatchToProps(dispatch) {
+  return {
+    addToken: function(token) {
+        dispatch( {type: 'addToken', token: token} )
+    }
+  }
+ }
+ 
+ export default connect(
+    null,
+    mapDispatchToProps
+ )(ScreenHome);
