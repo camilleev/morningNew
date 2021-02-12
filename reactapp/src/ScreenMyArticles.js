@@ -10,27 +10,7 @@ const { Meta } = Card;
 function ScreenMyArticles(props) {
   const [visible, setVisible] = useState(false)
   const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-
-  const [articlesWishList, setArticlesWishList] = useState([]);
-
-  useEffect(() => {
-    async function addWishlist() {
-        const whishlist = await fetch('/wishlist', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-          body: `title=${articlesWishList}` 
-        });
-
-        const jsonWishlist = await whishlist.json();
-          console.log(jsonWishlist)
-          
-          if(jsonWishlist.result == true){
-        setArticlesWishList(jsonWishlist.title)}
-  }
-      addWishlist()    
-}, [])
- 
+  const [content, setContent] = useState('') 
 
   const showModal = (title, content) => {
     setVisible(true)
@@ -53,6 +33,27 @@ function ScreenMyArticles(props) {
     noArticles = <div style={{marginTop:"30px"}}>No Articles</div>
   }
 
+  useEffect(() => {
+    const saveArticles = async() => {
+      const article = await fetch('/save-articles', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `token:${props.token}`
+      });
+      const jsonArticle = await article.json()
+    }
+    saveArticles()    
+  },[])
+
+  var handleDelete = async () => {
+    const deleteArticle = await fetch('/delete-articles/');
+    const jsonDelete = await deleteArticle.json()
+
+    props.deleteToWishList()
+  }
+
+  console.log('ARTICLE', props.myArticles);
+
   return (
     <div>
          
@@ -63,11 +64,8 @@ function ScreenMyArticles(props) {
             {noArticles}
 
             <div className="Card">
-    
-
             {props.myArticles.map((article,i) => (
                 <div key={i} style={{display:'flex',justifyContent:'center'}}>
-
                   <Card
                     
                     style={{ 
@@ -84,7 +82,7 @@ function ScreenMyArticles(props) {
                     }
                     actions={[
                         <Icon type="read" key="ellipsis2" onClick={() => showModal(article.title,article.content)} />,
-                        <Icon type="delete" key="ellipsis" onClick={() => props.deleteToWishList(article.title)} />
+                        <Icon type="delete" key="ellipsis" onClick={() => handleDelete ()} />
                     ]}
                     >
 
@@ -115,7 +113,8 @@ function ScreenMyArticles(props) {
 }
 
 function mapStateToProps(state){
-  return {myArticles: state.wishList}
+console.log('STATE', state)
+  return {myArticles: state.wishList, token: state.token}
 }
 
 function mapDispatchToProps(dispatch){

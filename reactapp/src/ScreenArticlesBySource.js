@@ -19,7 +19,7 @@ function ScreenArticlesBySource(props) {
 
   useEffect(() => {
     const findArticles = async() => {
-      const data = await fetch(`https://newsapi.org/v2/top-headlines?sources=${props.match.params.id}&apiKey=b32c8b844d1243b1a7998d8228910f50`)
+      const data = await fetch(`https://newsapi.org/v2/top-headlines?sources=${props.match.params.id}&apiKey=d0aab4b7775b43eea657b4235f2cbf79`)
       const body = await data.json()
       console.log(body.articles)
       setArticleList(body.articles) 
@@ -44,21 +44,17 @@ function ScreenArticlesBySource(props) {
     setVisible(false)
   }
 
-  var handleWishList = e => {
-    async function addWishlist() {
+  var handleWishList = async (article) => {
+    
     const whishlist = await fetch('/wishlist', {
       method: 'POST',
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: `title=${articlesWishList}` 
+      body: `title=${article.title}&token=${props.token}&img=${article.urlToImage}&content=${article.content}` 
     });
     const jsonWishlist = await whishlist.json();
     console.log(jsonWishlist)
     
-    if(jsonWishlist.result == true){
-    setArticlesWishList(jsonWishlist.title)}
-    }
-
-      props.addToWishList()
+      props.addToWishList(article);
   }
 
   return (
@@ -88,7 +84,7 @@ function ScreenArticlesBySource(props) {
                   }
                   actions={[
                       <Icon type="read" key="ellipsis2" onClick={() => showModal(article.title,article.content)} />,
-                      <Icon type="like" key="ellipsis" onClick={()=> {props.addToWishList(article)}} />
+                      <Icon type="like" key="ellipsis" onClick={()=> {handleWishList(article)}} />
                   ]}
                   >
 
@@ -128,9 +124,10 @@ function mapDispatchToProps(dispatch){
   }
 }
 
-function mapStateToProps(state) {
-  return { saveWishList: state.wishList }
- }
+function mapStateToProps(state){
+  return {token: state.token}
+}
+
 
 export default connect(
   mapStateToProps,

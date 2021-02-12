@@ -104,24 +104,54 @@ router.post('/sign-in', async function(req,res,next){
 //Enregistrement BB wishlist
 router.post('/wishlist', async function(req, res, next) {
 
-  var newArticle = new userModel({
-    wishList: [{
-      title: req.body.title,
-      img: req.body.url,
-      content: req.body.desc,
-    }],
-    token: uid2(32)
+  var user = await userModel.findOne({
+    token: req.body.token
+  })
+  
+     user.wishList.push({
+    title: req.body.title,
+    img: req.body.img,
+    content: req.body.content
   })
 
-  var articleSave = await newArticle.save()
+  var userSaved = await user.save();
  
   var result = false
-  if(articleSave){
+  if(userSaved){
     result = true
   }
- console.log(articleSave);
-  res.json({result, articleSave})
+ console.log(userSaved);
+  res.json({result, userSaved})
 });
+
+router.post('/save-articles', async function(req, res, next){
+  
+  var wishList = await userModel.findOne({
+    token: req.body.token
+  })
+ 
+  var result = false
+  if(wishList){
+    result = true
+  }
+  res.json({result, wishList})
+
+})
+
+router.delete('/delete-articles/:title', async function(req, res, next) {
+
+  var deleteArticle = await userModel.deleteOne({ title: req.params.title})
+
+  var result = false
+  if(deleteArticle){
+    result = true
+  }
+
+  res.json({result})
+});
+
+
+
 router.post('/change-langage', async function(req,res,next){
   var updateLangage = await userModel.updateOne(
     { token: req.body.token},
