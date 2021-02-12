@@ -5,13 +5,13 @@ var uid2 = require('uid2');
 
 var userModel = require('../models/users');
 var wishListModel = require('../models/wishLists')
-const { token } = require('morgan');
 
 router.post('/sign-up', async function(req,res,next){
   var error = []
   var result = false
   var saveUser = null
   var cost = 10
+  var token = null
 
   const hash = bcrypt.hashSync(req.body.passwordFromFront, cost);
 
@@ -36,15 +36,16 @@ router.post('/sign-up', async function(req,res,next){
       username: req.body.usernameFromFront,
       email: req.body.emailFromFront,
       password: hash,
-      token : uid2(32)
+      token : uid2(32), 
+      langage: 'fr'
     })
   
     saveUser = await newUser.save()
   
-    var token = newUser.token
     
     if(saveUser){
       result = true
+      token = newUser.token
     }
   }
   
@@ -57,6 +58,8 @@ router.post('/sign-in', async function(req,res,next){
     var result = false
     var user = null
     var error = []
+    var token = null
+
   
     var password = req.body.passwordFromFront
     
@@ -77,19 +80,17 @@ router.post('/sign-in', async function(req,res,next){
   
         if (bcrypt.compareSync(password, user.password)) {
           result = true
-          var token = user.token
-  
-          res.json({result, error, token});
-  
+          token = user.token
+    
          }else {
           error.push('mot de passe incorrect')
-  
-          res.json({result, error });
-        }
+          }
       } else {
         error.push('mail incorrect')
-        res.json({result, error });
       }
+
+      res.json({result, error, token });
+
       
   }
  
@@ -121,5 +122,13 @@ router.post('/wishlist', async function(req, res, next) {
  console.log(articleSave);
   res.json({result, articleSave})
 });
+router.post('/change-langage', async function(req,res,next){
+  var updateLangage = await userModel.updateOne(
+    { token: req.body.token},
+    { langage: req.body.langage }
+ 
+ );
+  res.json({})
+})
 
 module.exports = router;
